@@ -64,14 +64,8 @@ CREATE INDEX idx_picks_league_user ON picks(league_id, user_id);
 CREATE INDEX idx_picks_status ON picks(status) WHERE status = 'active';
 CREATE INDEX idx_picks_ticker ON picks(market_ticker);
 
--- 5. Disable RLS for server-side access (we use service_role key)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE leagues ENABLE ROW LEVEL SECURITY;
-ALTER TABLE league_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE picks ENABLE ROW LEVEL SECURITY;
-
--- Allow service role full access
-CREATE POLICY "Service role full access" ON users FOR ALL USING (true);
-CREATE POLICY "Service role full access" ON leagues FOR ALL USING (true);
-CREATE POLICY "Service role full access" ON league_members FOR ALL USING (true);
-CREATE POLICY "Service role full access" ON picks FOR ALL USING (true);
+-- 5. Disable RLS — all access goes through server-side API routes using service_role key
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE leagues DISABLE ROW LEVEL SECURITY;
+ALTER TABLE league_members DISABLE ROW LEVEL SECURITY;
+ALTER TABLE picks DISABLE ROW LEVEL SECURITY;
