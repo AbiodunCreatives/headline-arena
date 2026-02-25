@@ -193,6 +193,35 @@
     .btn-copy-sm { padding:6px 14px; border-radius:8px; font-family:var(--font); font-size:12px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; }
     .btn-copy-sm:hover { border-color:var(--green); color:var(--green); }
 
+    /* Dashboard */
+    .dash-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+    .dash-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; }
+    .dash-card:hover { border-color:var(--border-hover); }
+    .dash-card.wide { grid-column:span 2; }
+    .dash-card.full { grid-column:1/-1; }
+    .dash-card-label { font-size:12px; font-weight:600; color:var(--dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+    .dash-card-value { font-size:32px; font-weight:800; letter-spacing:-0.03em; line-height:1.2; }
+    .dash-card-value.green { color:var(--green); }
+    .dash-card-value.red { color:var(--red); }
+    .dash-card-sub { font-size:13px; color:var(--muted); margin-top:6px; }
+    .dash-pnl-bar { display:flex; align-items:center; gap:16px; margin-top:12px; }
+    .dash-pnl-fill { height:8px; border-radius:999px; background:var(--green); transition:width 0.5s ease; }
+    .dash-pnl-bg { flex:1; height:8px; border-radius:999px; background:rgba(255,255,255,0.05); overflow:hidden; }
+    .dash-section-title { font-size:13px; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:16px; margin-top:8px; }
+    .dash-pick-row { display:flex; align-items:center; padding:14px 20px; border-radius:12px; margin-bottom:8px; background:var(--bg-card); border:1px solid var(--border); gap:16px; transition:all 0.2s; }
+    .dash-pick-row:hover { border-color:var(--border-hover); }
+    .dash-pick-dir { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; text-transform:uppercase; }
+    .dash-pick-dir.yes { background:rgba(0,227,143,0.12); color:var(--green); border:1px solid rgba(0,227,143,0.2); }
+    .dash-pick-dir.no { background:rgba(255,71,87,0.12); color:var(--red); border:1px solid rgba(255,71,87,0.2); }
+    .dash-pick-info { flex:1; min-width:0; }
+    .dash-pick-title { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dash-pick-meta { font-size:12px; color:var(--dim); margin-top:2px; }
+    .dash-pick-pnl { font-size:16px; font-weight:800; flex-shrink:0; }
+    .dash-pick-status { padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; flex-shrink:0; }
+    .dash-pick-status.active { background:rgba(0,227,143,0.1); color:var(--green); border:1px solid rgba(0,227,143,0.15); }
+    .dash-pick-status.won { background:rgba(0,227,143,0.15); color:var(--green); border:1px solid rgba(0,227,143,0.2); }
+    .dash-pick-status.lost { background:rgba(255,71,87,0.12); color:var(--red); border:1px solid rgba(255,71,87,0.2); }
+
     /* Footer */
     footer { text-align:center; padding:40px 0; border-top:1px solid var(--border); margin-top:40px; }
     footer p { font-size:13px; color:var(--dim); }
@@ -210,6 +239,13 @@
       nav { padding:12px 16px; }
       .nav-links a:not(.btn-nav), .nav-links button:not(.btn-nav) { display:none; }
       .page-header { flex-direction:column; align-items:flex-start; }
+      .dash-grid { grid-template-columns:repeat(2,1fr); }
+      .dash-card.wide { grid-column:span 2; }
+      .dash-pick-row { flex-wrap:wrap; }
+    }
+    @media (max-width:480px) {
+      .dash-grid { grid-template-columns:1fr; }
+      .dash-card.wide { grid-column:span 1; }
     }
   </style>
 </head>
@@ -223,7 +259,7 @@
     </div>
     <div class="nav-links">
       <a href="#" onclick="navigate('home')" class="active" id="nav-home">Home</a>
-      <a href="#" onclick="navigate('leagues')" id="nav-leagues" style="display:none;">My Leagues</a>
+      <a href="#" onclick="navigate('leagues')" id="nav-leagues" style="display:none;">Dashboard</a>
       <a href="#" onclick="navigate('leaderboard')" id="nav-leaderboard">Leaderboard</a>
       <div id="nav-auth-area"></div>
     </div>
@@ -258,12 +294,60 @@
     <!-- DASHBOARD (authenticated) -->
     <div class="screen" id="screen-dashboard">
       <div class="page-header">
-        <h2>My Leagues</h2>
+        <h2>Dashboard</h2>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-secondary btn-sm" onclick="openJoinModal()">Join League</button>
           <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ Create League</button>
         </div>
       </div>
+
+      <!-- P&L / Performance Cards -->
+      <div class="dash-grid" id="dash-stats">
+        <div class="dash-card">
+          <div class="dash-card-label">Portfolio Value</div>
+          <div class="dash-card-value green" id="dash-portfolio">--</div>
+          <div class="dash-card-sub" id="dash-portfolio-sub">across 0 leagues</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Total Return</div>
+          <div class="dash-card-value" id="dash-return">--</div>
+          <div class="dash-card-sub" id="dash-return-sub">vs starting bankroll</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Win Rate</div>
+          <div class="dash-card-value green" id="dash-winrate">--</div>
+          <div class="dash-card-sub" id="dash-winrate-sub">0 won / 0 resolved</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Active Picks</div>
+          <div class="dash-card-value" id="dash-active" style="color:var(--text);">--</div>
+          <div class="dash-card-sub" id="dash-active-sub">$0 at risk</div>
+        </div>
+      </div>
+
+      <!-- P&L Progress Bar -->
+      <div class="dash-card wide" id="dash-pnl-card" style="margin-bottom:32px;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div class="dash-card-label">P&L Performance</div>
+          <div class="dash-card-sub" id="dash-pnl-text" style="margin:0;"></div>
+        </div>
+        <div class="dash-pnl-bar">
+          <div class="dash-pnl-bg"><div class="dash-pnl-fill" id="dash-pnl-fill" style="width:50%;"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <span style="font-size:11px;color:var(--dim);">Starting</span>
+          <span style="font-size:11px;color:var(--dim);">Current</span>
+        </div>
+      </div>
+
+      <!-- Recent Picks -->
+      <div id="dash-recent-section" style="display:none;margin-bottom:32px;">
+        <div class="dash-section-title">Recent Picks</div>
+        <div id="dash-recent-picks"></div>
+      </div>
+
+      <!-- My Leagues -->
+      <div class="dash-section-title">My Leagues</div>
       <div id="dashboard-leagues" class="league-grid"></div>
     </div>
 
@@ -413,6 +497,7 @@
         screen = 'dashboard';
         document.getElementById('screen-dashboard').classList.add('active');
         document.getElementById('nav-leagues')?.classList.add('active');
+        loadDashboard();
         loadMyLeagues();
       } else if (screen === 'league-detail') {
         document.getElementById('screen-league-detail').classList.add('active');
@@ -524,6 +609,88 @@
 
       const res = await fetch(API + path, opts);
       return res.json();
+    }
+
+    // ===== DASHBOARD =====
+    async function loadDashboard() {
+      if (!currentUser || !authToken) return;
+
+      try {
+        const res = await apiFetch('/api/user');
+        if (!res.ok) return;
+
+        const s = res.stats;
+
+        // Portfolio Value
+        document.getElementById('dash-portfolio').textContent = '$' + (s.total_bankroll || 0).toLocaleString();
+        document.getElementById('dash-portfolio-sub').textContent = 'across ' + s.leagues + ' league' + (s.leagues !== 1 ? 's' : '');
+
+        // Return
+        const retEl = document.getElementById('dash-return');
+        const retPct = s.return_pct || 0;
+        retEl.textContent = (retPct >= 0 ? '+' : '') + retPct + '%';
+        retEl.className = 'dash-card-value ' + (retPct >= 0 ? 'green' : 'red');
+        const pnlAmt = s.total_bankroll - s.total_starting;
+        document.getElementById('dash-return-sub').textContent =
+          (pnlAmt >= 0 ? '+' : '') + '$' + pnlAmt.toLocaleString() + ' P&L';
+
+        // Win Rate
+        document.getElementById('dash-winrate').textContent = s.win_rate + '%';
+        document.getElementById('dash-winrate-sub').textContent =
+          s.won_picks + ' won / ' + s.resolved_picks + ' resolved';
+
+        // Active Picks
+        document.getElementById('dash-active').textContent = s.active_picks;
+        document.getElementById('dash-active-sub').textContent =
+          '$' + (s.active_amount || 0).toLocaleString() + ' at risk';
+
+        // P&L Bar
+        if (s.total_starting > 0) {
+          const pnlCard = document.getElementById('dash-pnl-card');
+          pnlCard.style.display = '';
+          const ratio = s.total_bankroll / s.total_starting;
+          const fillPct = Math.min(Math.max(ratio * 50, 5), 100);
+          document.getElementById('dash-pnl-fill').style.width = fillPct + '%';
+          document.getElementById('dash-pnl-fill').style.background =
+            ratio >= 1 ? 'var(--green)' : 'var(--red)';
+          document.getElementById('dash-pnl-text').innerHTML =
+            '<strong style="color:' + (pnlAmt >= 0 ? 'var(--green)' : 'var(--red)') + ';">' +
+            (pnlAmt >= 0 ? '+' : '') + '$' + pnlAmt.toLocaleString() +
+            '</strong> &middot; $' + s.total_starting.toLocaleString() + ' → $' + s.total_bankroll.toLocaleString();
+        }
+
+        // Recent Picks
+        const recentPicks = res.recent_picks || [];
+        if (recentPicks.length > 0) {
+          document.getElementById('dash-recent-section').style.display = '';
+          document.getElementById('dash-recent-picks').innerHTML = recentPicks.map(p => {
+            const pnl = p.pnl || 0;
+            const timeAgo = getTimeAgo(p.created_at);
+            return `<div class="dash-pick-row">
+              <div class="dash-pick-dir ${p.direction}">${p.direction}</div>
+              <div class="dash-pick-info">
+                <div class="dash-pick-title">${esc(p.market_title)}</div>
+                <div class="dash-pick-meta">$${p.amount} at ${p.entry_price}&cent; &middot; ${timeAgo}</div>
+              </div>
+              <div class="dash-pick-status ${p.status}">${p.status}</div>
+              ${p.status !== 'active' ? `<div class="dash-pick-pnl" style="color:${pnl >= 0 ? 'var(--green)' : 'var(--red)'};">${pnl >= 0 ? '+' : ''}$${pnl}</div>` : ''}
+            </div>`;
+          }).join('');
+        }
+
+      } catch (e) {
+        console.error('Dashboard load error:', e);
+      }
+    }
+
+    function getTimeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      return days + 'd ago';
     }
 
     // ===== MARKETS =====
