@@ -76,11 +76,16 @@ module.exports = async function handler(req, res) {
     const markets = await getAllMarkets();
     const category = req.query.category;
 
-    const filtered = category && category !== "all"
+    let filtered = category && category !== "all"
       ? markets.filter(
           (m) => m.category.toLowerCase() === category.toLowerCase()
         )
       : markets;
+
+    // Fall back to all markets if category filter matches nothing
+    if (filtered.length === 0 && category && category !== "all") {
+      filtered = markets;
+    }
 
     // Sort by volume desc for relevance
     filtered.sort((a, b) => (b.volume || 0) - (a.volume || 0));
