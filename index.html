@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Headline Arena — Prediction Market Fantasy League by Headline Odds</title>
+  <meta name="description" content="Compete with friends to predict real-world events. Pick markets, track odds, climb the leaderboard. A Headline Odds product." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080a09;
+      --bg-card: rgba(255,255,255,0.028);
+      --bg-card-hover: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --green: #00e38f;
+      --green-2: #00c65e;
+      --green-glow: rgba(0,227,143,0.15);
+      --green-subtle: rgba(0,227,143,0.08);
+      --red: #ff4757;
+      --text: #eef2ef;
+      --muted: #a9b5ae;
+      --dim: #55625d;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+    }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
+    body::before { content:''; position:fixed; top:-40%; left:50%; transform:translateX(-50%); width:900px; height:900px; background:radial-gradient(circle,rgba(0,227,143,0.08) 0%,transparent 70%); pointer-events:none; z-index:0; }
+    body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px); background-size:60px 60px; pointer-events:none; z-index:0; }
+
+    nav { position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:16px 32px; background:rgba(8,10,9,0.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+    .nav-brand { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:800; letter-spacing:-0.03em; color:var(--text); text-decoration:none; cursor:pointer; }
+    .nav-brand .logo { width:34px; height:34px; border-radius:50%; }
+    .nav-links { display:flex; gap:8px; align-items:center; }
+    .nav-links a, .nav-links button { color:var(--muted); text-decoration:none; font-size:14px; font-weight:500; padding:8px 16px; border-radius:8px; transition:all 0.2s; background:none; border:none; cursor:pointer; font-family:var(--font); }
+    .nav-links a:hover, .nav-links button:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+    .nav-links .active { color:var(--green); }
+    .btn-nav { background:linear-gradient(135deg,var(--green),var(--green-2))!important; color:#080a09!important; font-weight:700!important; padding:8px 20px!important; border-radius:999px!important; }
+    .btn-nav:hover { opacity:0.9; }
+    #nav-auth-area { display:flex; align-items:center; gap:8px; }
+    .user-pill { display:flex; align-items:center; gap:8px; padding:6px 16px; border-radius:999px; background:var(--bg-card); border:1px solid var(--border); font-size:13px; font-weight:600; color:var(--text); }
+
+    .container { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:0 24px; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    /* Hero */
+    .hero { text-align:center; padding:80px 0 60px; }
+    .hero-badge { display:inline-block; padding:6px 18px; border-radius:999px; background:var(--green-subtle); border:1px solid rgba(0,227,143,0.2); font-size:12px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:24px; }
+    .hero h1 { font-size:56px; font-weight:800; letter-spacing:-0.04em; line-height:1.1; margin-bottom:20px; }
+    .hero h1 span { color:var(--green); }
+    .hero p { font-size:18px; color:var(--muted); max-width:520px; margin:0 auto 40px; line-height:1.6; }
+    .hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 32px; border-radius:999px; font-family:var(--font); font-size:16px; font-weight:700; text-decoration:none; border:none; cursor:pointer; transition:all 0.2s; }
+    .btn-primary { background:linear-gradient(135deg,var(--green),var(--green-2)); color:#080a09; }
+    .btn-primary:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .btn-secondary { background:var(--bg-card); border:1px solid var(--border); color:var(--text); }
+    .btn-secondary:hover { border-color:var(--border-hover); background:var(--bg-card-hover); }
+    .btn-sm { padding:8px 20px; font-size:13px; }
+    .btn-block { width:100%; justify-content:center; }
+
+    /* Stats bar */
+    .stats-bar { display:flex; justify-content:center; gap:48px; padding:40px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin-bottom:60px; }
+    .stat { text-align:center; }
+    .stat-value { font-size:32px; font-weight:800; color:var(--green); letter-spacing:-0.03em; }
+    .stat-label { font-size:13px; color:var(--dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:4px; }
+
+    /* Steps */
+    .section-title { font-size:14px; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:24px; }
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:80px; }
+    .step { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:32px 24px; transition:all 0.2s; }
+    .step:hover { border-color:var(--border-hover); }
+    .step-num { width:40px; height:40px; border-radius:12px; background:var(--green-subtle); border:1px solid rgba(0,227,143,0.2); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; color:var(--green); margin-bottom:20px; }
+    .step h3 { font-size:18px; font-weight:700; margin-bottom:8px; letter-spacing:-0.02em; }
+    .step p { font-size:14px; color:var(--muted); line-height:1.6; }
+
+    /* Page header */
+    .page-header { padding:48px 0 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+    .page-header h2 { font-size:32px; font-weight:800; letter-spacing:-0.03em; }
+
+    /* League grid */
+    .league-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-bottom:60px; }
+    .league-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:24px; cursor:pointer; transition:all 0.2s; }
+    .league-card:hover { border-color:var(--green); background:var(--bg-card-hover); transform:translateY(-2px); }
+    .league-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .league-emoji { width:48px; height:48px; background:var(--green-subtle); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+    .league-status { padding:4px 12px; border-radius:999px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+    .league-status.live { background:rgba(0,227,143,0.1); color:var(--green); border:1px solid rgba(0,227,143,0.2); }
+    .league-status.ended { background:rgba(255,71,87,0.1); color:var(--red); border:1px solid rgba(255,71,87,0.2); }
+    .league-card h3 { font-size:18px; font-weight:700; margin-bottom:6px; letter-spacing:-0.02em; }
+    .league-card p { font-size:13px; color:var(--muted); margin-bottom:16px; }
+    .league-meta { display:flex; gap:16px; font-size:13px; color:var(--dim); flex-wrap:wrap; }
+
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); z-index:200; align-items:center; justify-content:center; }
+    .modal-overlay.active { display:flex; }
+    .modal { background:#0f1210; border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:480px; position:relative; max-height:90vh; overflow-y:auto; }
+    .modal h3 { font-size:24px; font-weight:800; margin-bottom:8px; letter-spacing:-0.03em; }
+    .modal .subtitle { font-size:14px; color:var(--muted); margin-bottom:32px; }
+    .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; color:var(--dim); font-size:24px; cursor:pointer; }
+    .form-group { margin-bottom:20px; }
+    .form-group label { display:block; font-size:13px; font-weight:600; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.04em; }
+    .form-group input, .form-group select { width:100%; padding:12px 16px; background:rgba(5,7,6,0.85); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:var(--font); font-size:15px; outline:none; transition:border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--green); }
+    .form-group input::placeholder { color:var(--dim); }
+
+    /* League detail */
+    .league-detail-header { padding:48px 0 24px; }
+    .league-detail-header h2 { font-size:32px; font-weight:800; letter-spacing:-0.03em; margin-bottom:8px; }
+    .league-detail-header p { color:var(--muted); font-size:15px; }
+    .league-detail-actions { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+    .league-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:32px; }
+    .league-tab { padding:12px 20px; font-size:14px; font-weight:600; color:var(--dim); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--font); }
+    .league-tab:hover { color:var(--muted); }
+    .league-tab.active { color:var(--green); border-bottom-color:var(--green); }
+
+    /* Market cards */
+    .market-list { margin-bottom:60px; }
+    .market-card { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:20px 24px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; transition:all 0.2s; gap:16px; }
+    .market-card:hover { border-color:var(--border-hover); }
+    .market-card.picked { border-color:var(--green); background:rgba(0,227,143,0.04); }
+    .market-info { flex:1; min-width:0; }
+    .market-category { font-size:11px; font-weight:600; color:var(--green); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+    .market-title { font-size:16px; font-weight:600; margin-bottom:8px; letter-spacing:-0.01em; }
+    .market-odds { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .odds-pill { padding:4px 14px; border-radius:999px; font-size:14px; font-weight:700; }
+    .odds-yes { background:rgba(0,227,143,0.1); color:var(--green); border:1px solid rgba(0,227,143,0.2); }
+    .odds-no { background:rgba(255,71,87,0.1); color:var(--red); border:1px solid rgba(255,71,87,0.2); }
+    .market-meta-text { font-size:12px; color:var(--dim); }
+    .market-actions { display:flex; gap:4px; align-items:center; flex-shrink:0; }
+    .pick-dir-btn { padding:8px 16px; border-radius:8px; font-family:var(--font); font-size:13px; font-weight:700; border:1px solid var(--border); background:none; color:var(--dim); cursor:pointer; transition:all 0.2s; }
+    .pick-dir-btn:hover { color:var(--text); border-color:var(--border-hover); }
+    .pick-dir-btn.yes-active { background:rgba(0,227,143,0.1); color:var(--green); border-color:rgba(0,227,143,0.3); }
+    .pick-dir-btn.no-active { background:rgba(255,71,87,0.1); color:var(--red); border-color:rgba(255,71,87,0.3); }
+    .pick-dir-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+    /* Bankroll bar */
+    .bankroll-bar { display:flex; align-items:center; justify-content:space-between; background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:16px 24px; margin-bottom:24px; }
+    .bankroll-label { font-size:13px; color:var(--dim); text-transform:uppercase; letter-spacing:0.04em; }
+    .bankroll-value { font-size:24px; font-weight:800; color:var(--green); }
+    .bankroll-change { font-size:14px; font-weight:600; margin-left:8px; }
+    .bankroll-change.up { color:var(--green); }
+    .bankroll-change.down { color:var(--red); }
+
+    /* Leaderboard */
+    .leaderboard { margin-bottom:60px; }
+    .lb-row { display:flex; align-items:center; padding:16px 24px; border-radius:14px; margin-bottom:8px; background:var(--bg-card); border:1px solid var(--border); transition:all 0.2s; }
+    .lb-row:hover { border-color:var(--border-hover); }
+    .lb-row.you { border-color:var(--green); background:rgba(0,227,143,0.04); }
+    .lb-row.top-1 { border-color:#ffd700; background:rgba(255,215,0,0.04); }
+    .lb-rank { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; margin-right:16px; background:rgba(255,255,255,0.04); color:var(--dim); flex-shrink:0; }
+    .lb-row.top-1 .lb-rank { background:rgba(255,215,0,0.15); color:#ffd700; }
+    .lb-user { flex:1; min-width:0; }
+    .lb-name { font-size:16px; font-weight:700; letter-spacing:-0.01em; }
+    .lb-picks { font-size:13px; color:var(--dim); margin-top:2px; }
+    .lb-stats { display:flex; gap:32px; text-align:right; flex-shrink:0; }
+    .lb-stat-label { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:0.04em; }
+    .lb-stat-value { font-size:20px; font-weight:800; letter-spacing:-0.02em; }
+    .lb-stat-value.positive { color:var(--green); }
+    .lb-stat-value.negative { color:var(--red); }
+
+    /* Pick modal */
+    .pick-amount-row { display:flex; gap:8px; align-items:center; margin-top:16px; }
+    .pick-amount-row input { width:120px; padding:10px 14px; background:rgba(5,7,6,0.85); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:var(--font); font-size:16px; font-weight:700; outline:none; text-align:center; }
+    .pick-amount-row input:focus { border-color:var(--green); }
+    .pick-preset { padding:8px 14px; border-radius:8px; font-family:var(--font); font-size:12px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; }
+    .pick-preset:hover { border-color:var(--green); color:var(--green); }
+
+    /* Toast */
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); padding:12px 28px; border-radius:12px; font-size:14px; font-weight:600; z-index:300; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+    .toast.show { opacity:1; }
+    .toast.success { background:rgba(0,227,143,0.15); border:1px solid rgba(0,227,143,0.3); color:var(--green); }
+    .toast.error { background:rgba(255,71,87,0.15); border:1px solid rgba(255,71,87,0.3); color:var(--red); }
+
+    /* Loading */
+    .loading { text-align:center; padding:60px 0; color:var(--dim); font-size:15px; }
+    .spinner { display:inline-block; width:24px; height:24px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Empty state */
+    .empty-state { text-align:center; padding:60px 24px; }
+    .empty-state h3 { font-size:20px; font-weight:700; margin-bottom:8px; }
+    .empty-state p { color:var(--muted); font-size:14px; margin-bottom:24px; }
+
+    /* Invite code display */
+    .invite-box { display:flex; align-items:center; gap:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:12px 20px; }
+    .invite-code { font-size:24px; font-weight:800; letter-spacing:0.1em; color:var(--green); font-family:monospace; }
+    .btn-copy-sm { padding:6px 14px; border-radius:8px; font-family:var(--font); font-size:12px; font-weight:600; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; }
+    .btn-copy-sm:hover { border-color:var(--green); color:var(--green); }
+
+    /* Footer */
+    footer { text-align:center; padding:40px 0; border-top:1px solid var(--border); margin-top:40px; }
+    footer p { font-size:13px; color:var(--dim); }
+    footer a { color:var(--dim); text-decoration:none; }
+    footer a:hover { color:var(--muted); }
+
+    /* Responsive */
+    @media (max-width:768px) {
+      .hero h1 { font-size:36px; }
+      .steps { grid-template-columns:1fr; }
+      .stats-bar { flex-direction:column; gap:24px; }
+      .market-card { flex-direction:column; align-items:flex-start; }
+      .market-actions { align-self:flex-end; }
+      .lb-stats { gap:16px; }
+      nav { padding:12px 16px; }
+      .nav-links a:not(.btn-nav), .nav-links button:not(.btn-nav) { display:none; }
+      .page-header { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand" onclick="navigate('home')">
+      <img src="https://headlineodds.fun/logo.png" class="logo" alt="Headline Odds" />
+      Headline Arena
+    </div>
+    <div class="nav-links">
+      <a href="#" onclick="navigate('home')" class="active" id="nav-home">Home</a>
+      <a href="#" onclick="navigate('leagues')" id="nav-leagues" style="display:none;">My Leagues</a>
+      <a href="#" onclick="navigate('leaderboard')" id="nav-leaderboard">Leaderboard</a>
+      <div id="nav-auth-area"></div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- HOME (unauthenticated) -->
+    <div class="screen active" id="screen-home">
+      <div class="hero">
+        <div class="hero-badge">by Headline Odds</div>
+        <h1>Predict. Compete.<br/><span>Win.</span></h1>
+        <p>Pick your side on real prediction markets. Compete against friends with a virtual bankroll. The best predictor takes the crown.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="hero-cta" onclick="handleHeroCta()">Get Started &rarr;</button>
+          <button class="btn btn-secondary" onclick="navigate('leaderboard')">View Leaderboard</button>
+        </div>
+      </div>
+      <div class="stats-bar" id="home-stats">
+        <div class="stat"><div class="stat-value" id="stat-players">--</div><div class="stat-label">Active Players</div></div>
+        <div class="stat"><div class="stat-value" id="stat-leagues">--</div><div class="stat-label">Leagues</div></div>
+        <div class="stat"><div class="stat-value" id="stat-markets">--</div><div class="stat-label">Markets Live</div></div>
+      </div>
+      <div class="section-title">How It Works</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><h3>Create or Join</h3><p>Start a league with friends or join a public one. Everyone gets a virtual bankroll to start.</p></div>
+        <div class="step"><div class="step-num">2</div><h3>Pick Markets</h3><p>Browse live prediction markets. Pick Yes or No on real-world events — politics, economics, crypto, weather.</p></div>
+        <div class="step"><div class="step-num">3</div><h3>Climb the Board</h3><p>Your portfolio gains/loses value as odds move. When markets resolve, the best predictor wins.</p></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD (authenticated) -->
+    <div class="screen" id="screen-dashboard">
+      <div class="page-header">
+        <h2>My Leagues</h2>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="openJoinModal()">Join League</button>
+          <button class="btn btn-primary btn-sm" onclick="openCreateModal()">+ Create League</button>
+        </div>
+      </div>
+      <div id="dashboard-leagues" class="league-grid"></div>
+    </div>
+
+    <!-- LEAGUE DETAIL -->
+    <div class="screen" id="screen-league-detail">
+      <div class="league-detail-header">
+        <h2 id="ld-title"></h2>
+        <p id="ld-meta"></p>
+        <div class="league-detail-actions">
+          <div class="invite-box">
+            <span style="font-size:13px;color:var(--dim);">Invite Code:</span>
+            <span class="invite-code" id="ld-invite-code"></span>
+            <button class="btn-copy-sm" onclick="copyInviteCode()">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="bankroll-bar">
+        <div><div class="bankroll-label">Your Bankroll</div></div>
+        <div style="display:flex;align-items:baseline;">
+          <div class="bankroll-value" id="ld-bankroll">--</div>
+          <div class="bankroll-change" id="ld-return"></div>
+        </div>
+      </div>
+      <div class="league-tabs">
+        <button class="league-tab active" onclick="showLeagueTab('markets',this)">Markets</button>
+        <button class="league-tab" onclick="showLeagueTab('my-picks',this)">My Picks</button>
+        <button class="league-tab" onclick="showLeagueTab('standings',this)">Standings</button>
+      </div>
+      <div id="tab-markets" class="league-tab-content"><div class="loading"><div class="spinner"></div><br/>Loading markets...</div></div>
+      <div id="tab-my-picks" class="league-tab-content" style="display:none;"><div class="loading"><div class="spinner"></div><br/>Loading picks...</div></div>
+      <div id="tab-standings" class="league-tab-content" style="display:none;"><div class="loading"><div class="spinner"></div><br/>Loading standings...</div></div>
+    </div>
+
+    <!-- GLOBAL LEADERBOARD -->
+    <div class="screen" id="screen-leaderboard">
+      <div class="page-header"><h2>Global Leaderboard</h2></div>
+      <div id="global-leaderboard"><div class="loading"><div class="spinner"></div><br/>Loading leaderboard...</div></div>
+    </div>
+
+  </div>
+
+  <!-- CREATE LEAGUE MODAL -->
+  <div class="modal-overlay" id="create-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3>Create a League</h3>
+      <p class="subtitle">Invite friends and start competing on real markets.</p>
+      <div class="form-group"><label>League Name</label><input type="text" id="create-name" placeholder="e.g. Macro Madness" /></div>
+      <div class="form-group"><label>Category Focus</label><select id="create-category"><option value="all">All Markets</option><option value="politics">Politics</option><option value="economics">Economics / Fed</option><option value="crypto">Crypto</option><option value="sports">Sports</option><option value="weather">Weather</option></select></div>
+      <div class="form-group"><label>Season Length</label><select id="create-duration"><option value="7">1 Week</option><option value="30" selected>1 Month</option><option value="90">3 Months</option></select></div>
+      <div class="form-group"><label>Starting Bankroll</label><select id="create-bankroll"><option value="1000">$1,000</option><option value="5000">$5,000</option><option value="10000" selected>$10,000</option><option value="50000">$50,000</option></select></div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px;">
+        <input type="checkbox" id="create-public" style="width:auto;" />
+        <label style="margin:0;text-transform:none;letter-spacing:0;">Make this league public</label>
+      </div>
+      <button class="btn btn-primary btn-block" id="btn-create-league" onclick="createLeague()">Create League &rarr;</button>
+    </div>
+  </div>
+
+  <!-- JOIN LEAGUE MODAL -->
+  <div class="modal-overlay" id="join-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3>Join a League</h3>
+      <p class="subtitle">Enter an invite code to join a friend's league.</p>
+      <div class="form-group"><label>Invite Code</label><input type="text" id="join-code" placeholder="e.g. ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:0.1em;font-weight:700;text-align:center;font-size:24px;" /></div>
+      <button class="btn btn-primary btn-block" id="btn-join-league" onclick="joinLeague()">Join League &rarr;</button>
+    </div>
+  </div>
+
+  <!-- PICK MODAL -->
+  <div class="modal-overlay" id="pick-modal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3>Place Your Pick</h3>
+      <p class="subtitle" id="pick-market-title"></p>
+      <div style="display:flex;gap:16px;margin-bottom:24px;">
+        <div class="odds-pill odds-yes" id="pick-yes-price" style="font-size:18px;padding:8px 20px;"></div>
+        <div class="odds-pill odds-no" id="pick-no-price" style="font-size:18px;padding:8px 20px;"></div>
+      </div>
+      <div class="form-group">
+        <label>Your Pick</label>
+        <div style="display:flex;gap:8px;">
+          <button class="pick-dir-btn" id="pick-btn-yes" onclick="selectPickDir('yes')" style="flex:1;padding:12px;">Yes</button>
+          <button class="pick-dir-btn" id="pick-btn-no" onclick="selectPickDir('no')" style="flex:1;padding:12px;">No</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Amount ($)</label>
+        <div class="pick-amount-row">
+          <input type="number" id="pick-amount" value="100" min="1" />
+          <button class="pick-preset" onclick="setPickAmount(50)">$50</button>
+          <button class="pick-preset" onclick="setPickAmount(100)">$100</button>
+          <button class="pick-preset" onclick="setPickAmount(500)">$500</button>
+          <button class="pick-preset" onclick="setPickAmount(1000)">$1K</button>
+        </div>
+        <p style="font-size:12px;color:var(--dim);margin-top:8px;">Available: $<span id="pick-available">--</span></p>
+      </div>
+      <button class="btn btn-primary btn-block" id="btn-confirm-pick" onclick="confirmPick()">Confirm Pick &rarr;</button>
+    </div>
+  </div>
+
+  <!-- USERNAME MODAL -->
+  <div class="modal-overlay" id="username-modal">
+    <div class="modal">
+      <h3>Choose Your Name</h3>
+      <p class="subtitle">Pick a username for the leaderboard.</p>
+      <div class="form-group"><label>Username</label><input type="text" id="username-input" placeholder="e.g. CryptoOracle" maxlength="20" /></div>
+      <button class="btn btn-primary btn-block" onclick="setUsername()">Let's Go &rarr;</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <a href="https://headlineodds.fun">headlineodds.fun</a>
+      &nbsp;&middot;&nbsp; Headline Arena by Headline Odds &nbsp;&middot;&nbsp;
+      <a href="https://x.com/headlineodds">@headlineodds</a>
+    </p>
+  </footer>
+
+  <!-- PRIVY SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@privy-io/js-sdk-core@latest/dist/umd/index.js"></script>
+
+  <script>
+    // ===== CONFIG =====
+    const API = window.location.origin;
+    const PRIVY_APP_ID = ''; // Will be set from env/config
+
+    // ===== STATE =====
+    let currentUser = null;
+    let authToken = null;
+    let currentLeague = null;
+    let currentMarkets = [];
+    let currentPicks = [];
+    let pickState = { ticker: '', title: '', direction: '', yes_bid: 0, no_bid: 0 };
+
+    // ===== NAVIGATION =====
+    function navigate(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+
+      if (screen === 'leagues' || screen === 'dashboard') {
+        screen = 'dashboard';
+        document.getElementById('screen-dashboard').classList.add('active');
+        document.getElementById('nav-leagues')?.classList.add('active');
+        loadMyLeagues();
+      } else if (screen === 'league-detail') {
+        document.getElementById('screen-league-detail').classList.add('active');
+      } else if (screen === 'leaderboard') {
+        document.getElementById('screen-leaderboard').classList.add('active');
+        document.getElementById('nav-leaderboard')?.classList.add('active');
+        loadGlobalLeaderboard();
+      } else {
+        document.getElementById('screen-home').classList.add('active');
+        document.getElementById('nav-home')?.classList.add('active');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function handleHeroCta() {
+      if (currentUser) {
+        navigate('dashboard');
+      } else {
+        toast('Connect your account to get started. Privy integration pending.', 'error');
+      }
+    }
+
+    // ===== AUTH =====
+    function updateAuthUI() {
+      const area = document.getElementById('nav-auth-area');
+      const navLeagues = document.getElementById('nav-leagues');
+      const heroCta = document.getElementById('hero-cta');
+
+      if (currentUser) {
+        navLeagues.style.display = '';
+        area.innerHTML = `
+          <div class="user-pill">${currentUser.username || 'Player'}</div>
+          <button class="nav-links" style="padding:4px 12px;" onclick="logout()">Logout</button>
+        `;
+        heroCta.textContent = 'My Leagues →';
+      } else {
+        navLeagues.style.display = 'none';
+        area.innerHTML = `<button class="btn-nav" onclick="login()">Sign In</button>`;
+        heroCta.textContent = 'Get Started →';
+      }
+    }
+
+    async function login() {
+      // For now, use a simple demo mode until Privy is configured
+      if (!PRIVY_APP_ID) {
+        // Demo mode: create a mock session
+        const demoId = 'demo_' + Math.random().toString(36).slice(2, 10);
+        authToken = 'demo_token_' + demoId;
+
+        // Try to get/create user via API
+        try {
+          const res = await apiFetch('/api/user');
+          if (res.ok) {
+            currentUser = res.user;
+          }
+        } catch (e) {
+          // API not available, use local demo
+          currentUser = { id: demoId, username: null };
+        }
+
+        if (!currentUser?.username) {
+          document.getElementById('username-modal').classList.add('active');
+        }
+        updateAuthUI();
+        return;
+      }
+
+      // Real Privy login would go here
+      toast('Privy login initializing...', 'success');
+    }
+
+    function logout() {
+      currentUser = null;
+      authToken = null;
+      updateAuthUI();
+      navigate('home');
+    }
+
+    async function setUsername() {
+      const name = document.getElementById('username-input').value.trim();
+      if (!name) return toast('Enter a username', 'error');
+
+      if (authToken && !authToken.startsWith('demo_')) {
+        try {
+          const res = await apiFetch('/api/user', 'PUT', { username: name });
+          if (!res.ok) return toast(res.error || 'Failed', 'error');
+          currentUser = res.user;
+        } catch (e) {
+          currentUser.username = name;
+        }
+      } else {
+        currentUser.username = name;
+      }
+
+      closeModals();
+      updateAuthUI();
+      navigate('dashboard');
+      toast('Welcome, ' + name + '!', 'success');
+    }
+
+    // ===== API HELPER =====
+    async function apiFetch(path, method = 'GET', body = null) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+      };
+      if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+      if (body) opts.body = JSON.stringify(body);
+
+      const res = await fetch(API + path, opts);
+      return res.json();
+    }
+
+    // ===== MARKETS =====
+    async function loadMarkets(category) {
+      const container = document.getElementById('tab-markets');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><br/>Loading markets...</div>';
+
+      try {
+        const cat = category || currentLeague?.category || 'all';
+        const res = await apiFetch('/api/markets?category=' + cat);
+        if (!res.ok) throw new Error(res.error);
+
+        currentMarkets = res.markets || [];
+        document.getElementById('stat-markets').textContent = res.count || '--';
+
+        if (currentMarkets.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No markets found</h3><p>Check back soon for new markets.</p></div>';
+          return;
+        }
+
+        // Check which markets user already picked
+        const pickedTickers = new Set(currentPicks.filter(p => p.status === 'active').map(p => p.market_ticker));
+
+        container.innerHTML = '<div class="market-list">' + currentMarkets.map(m => {
+          const isPicked = pickedTickers.has(m.ticker);
+          const vol = m.volume >= 1000000 ? `$${(m.volume/1000000).toFixed(1)}M` :
+                      m.volume >= 1000 ? `$${(m.volume/1000).toFixed(0)}K` :
+                      `$${m.volume || 0}`;
+          const closes = m.close_time ? new Date(m.close_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+
+          return `<div class="market-card${isPicked ? ' picked' : ''}">
+            <div class="market-info">
+              <div class="market-category">${esc(m.category)}</div>
+              <div class="market-title">${esc(m.title)}</div>
+              <div class="market-odds">
+                <span class="odds-pill odds-yes">Yes ${m.yes_bid || '--'}&cent;</span>
+                <span class="odds-pill odds-no">No ${m.no_bid || '--'}&cent;</span>
+                <span class="market-meta-text">Vol: ${vol}${closes ? ' &middot; Closes ' + closes : ''}</span>
+              </div>
+            </div>
+            <div class="market-actions">
+              ${isPicked
+                ? '<span style="font-size:13px;color:var(--green);font-weight:600;">Picked &#10003;</span>'
+                : `<button class="pick-dir-btn" onclick="openPickModal('${esc(m.ticker)}','${esc(m.title)}',${m.yes_bid},${m.no_bid})">Pick</button>`
+              }
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h3>Error loading markets</h3><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    // ===== LEAGUES =====
+    async function loadMyLeagues() {
+      const container = document.getElementById('dashboard-leagues');
+
+      if (!currentUser) {
+        container.innerHTML = '<div class="empty-state"><h3>Sign in to see your leagues</h3><p>Create or join leagues to start competing.</p><button class="btn btn-primary" onclick="login()">Sign In</button></div>';
+        return;
+      }
+
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><br/>Loading leagues...</div>';
+
+      try {
+        const res = await apiFetch('/api/leagues');
+        if (!res.ok) throw new Error(res.error);
+
+        const leagues = res.leagues || [];
+
+        if (leagues.length === 0) {
+          container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+            <h3>No leagues yet</h3>
+            <p>Create your first league or join one with an invite code.</p>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">
+              <button class="btn btn-secondary btn-sm" onclick="openJoinModal()">Join League</button>
+              <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Create League</button>
+            </div>
+          </div>`;
+          return;
+        }
+
+        container.innerHTML = leagues.map(l => {
+          const isLive = new Date(l.season_end) > new Date();
+          const ends = new Date(l.season_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const returnPct = l.bankroll > 0 ? Math.round(((l.current_bankroll - l.bankroll) / l.bankroll) * 100) : 0;
+
+          return `<div class="league-card" onclick="openLeague('${l.id}')">
+            <div class="league-card-header">
+              <div class="league-emoji">&#9876;</div>
+              <div class="league-status ${isLive ? 'live' : 'ended'}">${isLive ? 'Live' : 'Ended'}</div>
+            </div>
+            <h3>${esc(l.name)}</h3>
+            <p>${esc(l.category || 'All Markets')} &middot; $${(l.current_bankroll || 0).toLocaleString()} bankroll</p>
+            <div class="league-meta">
+              <span>&#128101; ${l.member_count || 1} players</span>
+              <span>&#128197; ${isLive ? 'Ends' : 'Ended'} ${ends}</span>
+              ${l.rank ? `<span>&#127942; #${l.rank}</span>` : ''}
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    async function openLeague(leagueId) {
+      navigate('league-detail');
+
+      try {
+        const res = await apiFetch('/api/leagues?league_id=' + leagueId);
+        if (!res.ok) throw new Error(res.error);
+
+        currentLeague = res.league;
+        const mem = res.membership;
+
+        document.getElementById('ld-title').textContent = currentLeague.name;
+        const ends = new Date(currentLeague.season_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        document.getElementById('ld-meta').textContent = `${currentLeague.member_count || 1} players · Ends ${ends}`;
+        document.getElementById('ld-invite-code').textContent = currentLeague.invite_code;
+
+        const bankroll = mem?.current_bankroll || currentLeague.bankroll;
+        const returnPct = Math.round(((bankroll - currentLeague.bankroll) / currentLeague.bankroll) * 100);
+        document.getElementById('ld-bankroll').textContent = '$' + bankroll.toLocaleString();
+        const retEl = document.getElementById('ld-return');
+        retEl.textContent = (returnPct >= 0 ? '+' : '') + returnPct + '%';
+        retEl.className = 'bankroll-change ' + (returnPct >= 0 ? 'up' : 'down');
+
+        // Load picks first so we can mark picked markets
+        await loadMyPicks();
+        await loadMarkets();
+        await loadStandings();
+      } catch (e) {
+        toast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ===== PICKS =====
+    async function loadMyPicks() {
+      const container = document.getElementById('tab-my-picks');
+      if (!currentLeague) return;
+
+      try {
+        const res = await apiFetch('/api/picks?league_id=' + currentLeague.id);
+        if (!res.ok) throw new Error(res.error);
+
+        currentPicks = res.picks || [];
+
+        if (currentPicks.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No picks yet</h3><p>Go to the Markets tab and make your first pick.</p></div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="market-list">' + currentPicks.map(p => {
+          const isActive = p.status === 'active';
+          // Find current market price for live P&L
+          const market = currentMarkets.find(m => m.ticker === p.market_ticker);
+          let livePrice = p.direction === 'yes' ? (market?.yes_bid || p.entry_price) : (market?.no_bid || (100 - p.entry_price));
+          let pnl = isActive ? Math.round((livePrice - p.entry_price) * (p.amount / p.entry_price)) : (p.pnl || 0);
+
+          return `<div class="market-card picked">
+            <div class="market-info">
+              <div class="market-category">${p.direction.toUpperCase()} PICK</div>
+              <div class="market-title">${esc(p.market_title)}</div>
+              <div class="market-odds">
+                <span class="odds-pill ${p.direction === 'yes' ? 'odds-yes' : 'odds-no'}">${p.direction === 'yes' ? 'Yes' : 'No'} ${p.entry_price}&cent;</span>
+                <span class="market-meta-text">
+                  $${p.amount} wagered &middot;
+                  P&L: <strong style="color:${pnl >= 0 ? 'var(--green)' : 'var(--red)'};">${pnl >= 0 ? '+' : ''}$${pnl}</strong>
+                  &middot; ${isActive ? 'Active' : p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                </span>
+              </div>
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    function openPickModal(ticker, title, yesBid, noBid) {
+      if (!currentUser) return login();
+
+      pickState = { ticker, title, direction: '', yes_bid: yesBid, no_bid: noBid };
+      document.getElementById('pick-market-title').textContent = title;
+      document.getElementById('pick-yes-price').textContent = 'Yes ' + yesBid + '\u00a2';
+      document.getElementById('pick-no-price').textContent = 'No ' + noBid + '\u00a2';
+      document.getElementById('pick-btn-yes').className = 'pick-dir-btn';
+      document.getElementById('pick-btn-no').className = 'pick-dir-btn';
+      document.getElementById('pick-amount').value = 100;
+
+      // Show available bankroll
+      const mem = currentLeague ? document.getElementById('ld-bankroll').textContent.replace(/[^0-9]/g, '') : '10000';
+      document.getElementById('pick-available').textContent = parseInt(mem).toLocaleString();
+
+      document.getElementById('pick-modal').classList.add('active');
+    }
+
+    function selectPickDir(dir) {
+      pickState.direction = dir;
+      document.getElementById('pick-btn-yes').className = 'pick-dir-btn' + (dir === 'yes' ? ' yes-active' : '');
+      document.getElementById('pick-btn-no').className = 'pick-dir-btn' + (dir === 'no' ? ' no-active' : '');
+    }
+
+    function setPickAmount(val) {
+      document.getElementById('pick-amount').value = val;
+    }
+
+    async function confirmPick() {
+      if (!pickState.direction) return toast('Select Yes or No', 'error');
+
+      const amount = parseInt(document.getElementById('pick-amount').value);
+      if (!amount || amount < 1) return toast('Enter a valid amount', 'error');
+
+      const btn = document.getElementById('btn-confirm-pick');
+      btn.disabled = true;
+      btn.textContent = 'Placing pick...';
+
+      try {
+        const entryPrice = pickState.direction === 'yes' ? pickState.yes_bid : pickState.no_bid;
+        const res = await apiFetch('/api/picks', 'POST', {
+          league_id: currentLeague.id,
+          market_ticker: pickState.ticker,
+          market_title: pickState.title,
+          direction: pickState.direction,
+          entry_price: entryPrice,
+          amount,
+        });
+
+        if (!res.ok) throw new Error(res.error);
+
+        closeModals();
+        toast('Pick placed! ' + pickState.direction.toUpperCase() + ' on ' + pickState.title.slice(0, 40), 'success');
+
+        // Update bankroll display
+        document.getElementById('ld-bankroll').textContent = '$' + (res.remaining_bankroll || 0).toLocaleString();
+
+        // Reload data
+        await loadMyPicks();
+        await loadMarkets();
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirm Pick →';
+      }
+    }
+
+    // ===== STANDINGS =====
+    async function loadStandings() {
+      const container = document.getElementById('tab-standings');
+      if (!currentLeague) return;
+
+      try {
+        const res = await apiFetch('/api/leaderboard?league_id=' + currentLeague.id);
+        if (!res.ok) throw new Error(res.error);
+
+        const standings = res.standings || [];
+        if (standings.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No standings yet</h3><p>Invite friends to join and start competing.</p></div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="leaderboard">' + standings.map((s, i) => {
+          const isYou = currentUser && s.user_id === currentUser.id;
+          const isFirst = i === 0;
+          return `<div class="lb-row${isYou ? ' you' : ''}${isFirst ? ' top-1' : ''}">
+            <div class="lb-rank">${s.rank}</div>
+            <div class="lb-user">
+              <div class="lb-name">${esc(s.username)}${isYou ? ' (You)' : ''}</div>
+              <div class="lb-picks">${s.total_picks} picks &middot; ${s.won_picks} correct</div>
+            </div>
+            <div class="lb-stats">
+              <div><div class="lb-stat-label">Bankroll</div><div class="lb-stat-value">$${s.current_bankroll.toLocaleString()}</div></div>
+              <div><div class="lb-stat-label">Return</div><div class="lb-stat-value ${s.return_pct >= 0 ? 'positive' : 'negative'}">${s.return_pct >= 0 ? '+' : ''}${s.return_pct}%</div></div>
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    // ===== GLOBAL LEADERBOARD =====
+    async function loadGlobalLeaderboard() {
+      const container = document.getElementById('global-leaderboard');
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><br/>Loading leaderboard...</div>';
+
+      try {
+        const res = await apiFetch('/api/leaderboard');
+        if (!res.ok) throw new Error(res.error);
+
+        const standings = res.standings || [];
+        if (standings.length === 0) {
+          container.innerHTML = '<div class="empty-state"><h3>No players yet</h3><p>Be the first to create a league and start competing.</p></div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="leaderboard">' + standings.map((s, i) => {
+          const isYou = currentUser && s.user_id === currentUser.id;
+          const isFirst = i === 0;
+          return `<div class="lb-row${isYou ? ' you' : ''}${isFirst ? ' top-1' : ''}">
+            <div class="lb-rank">${s.rank}</div>
+            <div class="lb-user">
+              <div class="lb-name">${esc(s.username)}${isYou ? ' (You)' : ''}</div>
+              <div class="lb-picks">${s.league_count} leagues &middot; ${s.total_picks} picks</div>
+            </div>
+            <div class="lb-stats">
+              <div><div class="lb-stat-label">Total Bankroll</div><div class="lb-stat-value">$${s.total_bankroll.toLocaleString()}</div></div>
+              <div><div class="lb-stat-label">Win Rate</div><div class="lb-stat-value">${s.win_rate}%</div></div>
+            </div>
+          </div>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        container.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${esc(e.message)}</p></div>`;
+      }
+    }
+
+    // ===== CREATE / JOIN =====
+    function openCreateModal() { document.getElementById('create-modal').classList.add('active'); }
+    function openJoinModal() { document.getElementById('join-modal').classList.add('active'); }
+    function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+    async function createLeague() {
+      const name = document.getElementById('create-name').value.trim();
+      if (!name) return toast('Enter a league name', 'error');
+
+      const btn = document.getElementById('btn-create-league');
+      btn.disabled = true;
+
+      const days = parseInt(document.getElementById('create-duration').value);
+      const seasonEnd = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+
+      try {
+        const res = await apiFetch('/api/leagues', 'POST', {
+          name,
+          category: document.getElementById('create-category').value,
+          bankroll: parseInt(document.getElementById('create-bankroll').value),
+          season_end: seasonEnd,
+          is_public: document.getElementById('create-public').checked,
+        });
+
+        if (!res.ok) throw new Error(res.error);
+
+        closeModals();
+        toast('League created! Invite code: ' + res.league.invite_code, 'success');
+        openLeague(res.league.id);
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function joinLeague() {
+      const code = document.getElementById('join-code').value.trim().toUpperCase();
+      if (!code || code.length < 4) return toast('Enter a valid invite code', 'error');
+
+      const btn = document.getElementById('btn-join-league');
+      btn.disabled = true;
+
+      try {
+        const res = await apiFetch('/api/leagues', 'POST', {
+          action: 'join',
+          invite_code: code,
+        });
+
+        if (!res.ok) throw new Error(res.error);
+
+        closeModals();
+        toast('Joined ' + res.league.name + '!', 'success');
+        openLeague(res.league.id);
+      } catch (e) {
+        toast(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function copyInviteCode() {
+      const code = document.getElementById('ld-invite-code').textContent;
+      navigator.clipboard.writeText(code);
+      toast('Invite code copied: ' + code, 'success');
+    }
+
+    // ===== TABS =====
+    function showLeagueTab(tab, btn) {
+      document.querySelectorAll('.league-tab-content').forEach(t => t.style.display = 'none');
+      document.querySelectorAll('.league-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).style.display = 'block';
+      btn.classList.add('active');
+    }
+
+    // ===== UTILITIES =====
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    function toast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast show ' + type;
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModals(); });
+    });
+
+    // ===== INIT =====
+    updateAuthUI();
+
+    // Load market count for homepage
+    apiFetch('/api/markets').then(res => {
+      if (res.ok) document.getElementById('stat-markets').textContent = res.count || 0;
+    }).catch(() => {});
+  </script>
+
+</body>
+</html>

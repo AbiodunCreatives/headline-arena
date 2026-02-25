@@ -1,0 +1,13 @@
+{
+  "name": "headline-arena",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Headline Arena — Prediction Market Fantasy League by Headline Odds",
+  "scripts": {
+    "dev": "echo 'Run: npx vercel dev'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "@privy-io/server-auth": "^1.18.0"
+  }
+}
