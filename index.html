@@ -721,21 +721,15 @@
       <div class="modal-handle"></div>
       <h3>Place Pick</h3>
       <p class="subtitle" id="pick-market-title"></p>
+      <div class="form-group"><label>Pick Your Side</label></div>
       <div class="mkt-odds" style="margin-bottom:20px;">
-        <div class="mkt-odd mkt-odd-yes" style="cursor:default;">
+        <div class="mkt-odd mkt-odd-yes" id="pick-btn-yes" onclick="selectPickDir('yes')" style="cursor:pointer;transition:all 0.2s;border-width:2px;">
           <span class="mkt-odd-label">Yes</span>
           <span class="mkt-odd-val" id="pick-yes-price"></span>
         </div>
-        <div class="mkt-odd mkt-odd-no" style="cursor:default;">
+        <div class="mkt-odd mkt-odd-no" id="pick-btn-no" onclick="selectPickDir('no')" style="cursor:pointer;transition:all 0.2s;border-width:2px;">
           <span class="mkt-odd-label">No</span>
           <span class="mkt-odd-val" id="pick-no-price"></span>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Direction</label>
-        <div class="dir-btns">
-          <button class="dir-btn" id="pick-btn-yes" onclick="selectPickDir('yes')">Yes</button>
-          <button class="dir-btn" id="pick-btn-no" onclick="selectPickDir('no')">No</button>
         </div>
       </div>
       <div class="form-group">
@@ -1313,8 +1307,8 @@
       document.getElementById('pick-market-title').textContent = title;
       document.getElementById('pick-yes-price').textContent = yesBid + '¢';
       document.getElementById('pick-no-price').textContent = noBid + '¢';
-      document.getElementById('pick-btn-yes').className = 'dir-btn';
-      document.getElementById('pick-btn-no').className = 'dir-btn';
+      document.getElementById('pick-btn-yes').style.cssText = 'cursor:pointer;transition:all 0.2s;border-width:2px;';
+      document.getElementById('pick-btn-no').style.cssText = 'cursor:pointer;transition:all 0.2s;border-width:2px;';
       document.getElementById('pick-amount').value = 100;
       const bankroll = document.getElementById('ld-stats')?.querySelector('.ld-big-stat-val')?.textContent?.replace(/[^0-9]/g, '') || '10000';
       document.getElementById('pick-available').textContent = parseInt(bankroll).toLocaleString();
@@ -1323,8 +1317,10 @@
 
     function selectPickDir(dir) {
       pickState.direction = dir;
-      document.getElementById('pick-btn-yes').className = 'dir-btn' + (dir === 'yes' ? ' yes-active' : '');
-      document.getElementById('pick-btn-no').className = 'dir-btn' + (dir === 'no' ? ' no-active' : '');
+      const yesEl = document.getElementById('pick-btn-yes');
+      const noEl = document.getElementById('pick-btn-no');
+      yesEl.style.cssText = 'cursor:pointer;transition:all 0.2s;border-width:2px;' + (dir === 'yes' ? 'transform:scale(1.05);box-shadow:0 0 20px rgba(0,227,143,0.3);border-color:var(--green);background:rgba(0,227,143,0.15);' : 'opacity:0.5;');
+      noEl.style.cssText = 'cursor:pointer;transition:all 0.2s;border-width:2px;' + (dir === 'no' ? 'transform:scale(1.05);box-shadow:0 0 20px rgba(255,71,87,0.3);border-color:var(--red);background:rgba(255,71,87,0.15);' : 'opacity:0.5;');
     }
 
     function setPickAmount(val) { document.getElementById('pick-amount').value = val; }
