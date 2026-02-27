@@ -1,86 +1,95 @@
-// Fetches live Kalshi markets with in-memory caching
-// Ported from headline-odds-tool/api/match.js
+// Fetches live markets from Bayse Markets with in-memory caching
 
-const KALSHI_API = "https://api.elections.kalshi.com/trade-api/v2";
+const BAYSE_API = "https://relay.bayse.markets/v1";
 const CACHE_TTL = 5 * 60 * 1000;
-let marketCache = { data: [], ts: 0 };
 
-async function getAllMarkets() {
+let bayseCache = { data: [], ts: 0 };
+
+async function getBayseMarkets() {
   const now = Date.now();
-  if (marketCache.data.length && now - marketCache.ts < CACHE_TTL) {
-    return marketCache.data;
+  if (bayseCache.data.length && now - bayseCache.ts < CACHE_TTL) {
+    return bayseCache.data;
   }
 
   const allMarkets = [];
-  let cursor = null;
 
-  for (let i = 0; i < 4; i++) {
-    const params = new URLSearchParams({
-      limit: "200",
-      status: "open",
-      with_nested_markets: "true",
-    });
-    if (cursor) params.set("cursor", cursor);
-
-    const res = await fetch(`${KALSHI_API}/events?${params}`);
-    if (!res.ok) throw new Error(`Kalshi API ${res.status}`);
+  for (let page = 1; page <= 6; page++) {
+    const res = await fetch(`${BAYSE_API}/pm/events?page=${page}&size=50`);
+    if (!res.ok) break;
     const json = await res.json();
+    const events = json.events || [];
 
-    for (const event of json.events || []) {
+    for (const event of events) {
+      if (event.status !== "open") continue;
+
       for (const m of event.markets || []) {
-        const close = m.close_time || m.expected_expiration_time;
-        if (close && new Date(close).getTime() < Date.now()) continue;
+        if (m.status !== "open") continue;
 
-        const seriesTicker =
-          event.series_ticker || event.event_ticker || "";
+        // Bayse prices are 0-1 decimals, convert to cents (0-100)
+        const yesBid = Math.round(
+          (m.yesBuyPrice || m.outcome1Price || 0) * 100
+        );
+        const noBid = Math.round(
+          (m.noBuyPrice || m.outcome2Price || 0) * 100
+        );
+
+        // Normalize category casing
+        const rawCat = (event.category || "").trim();
+        const category =
+          rawCat.charAt(0).toUpperCase() + rawCat.slice(1).toLowerCase();
 
         allMarkets.push({
-          ticker: m.ticker,
-          title: m.title || event.title,
-          subtitle: m.subtitle || event.sub_title || "",
-          category: event.category || "",
-          event_title: event.title || "",
-          yes_bid: m.yes_bid,
-          no_bid: m.no_bid,
-          last_price: m.last_price,
-          volume: m.volume,
-          close_time: close,
+          ticker: `bayse_${m.id}`,
+          title:
+            event.type === "single"
+              ? event.title
+              : `${event.title} — ${m.title}`,
+          subtitle: "",
+          category:
+            category === "Social media" ? "Social" : category,
+          event_title: event.title,
+          yes_bid: yesBid,
+          no_bid: noBid,
+          last_price: yesBid,
+          volume: event.totalVolume || event.totalOrders || 0,
+          close_time: event.closingDate || event.resolutionDate || "",
           status: m.status,
-          url: seriesTicker
-            ? `https://kalshi.com/markets/${seriesTicker}`
-            : m.ticker
-              ? `https://kalshi.com/markets/${m.ticker}`
-              : "https://kalshi.com/markets",
+          source: "bayse",
+          image: event.image128Url || event.imageUrl || "",
+          url: `https://bayse.markets/event/${event.id}`,
         });
       }
     }
 
-    cursor = json.cursor;
-    if (!cursor || (json.events || []).length < 200) break;
+    if (!json.pagination || page >= json.pagination.lastPage) break;
   }
 
-  marketCache = { data: allMarkets, ts: Date.now() };
+  bayseCache = { data: allMarkets, ts: Date.now() };
   return allMarkets;
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "GET")
     return res.status(405).json({ error: "GET only" });
 
   try {
-    const markets = await getAllMarkets();
+    const markets = await getBayseMarkets();
     const category = req.query.category;
 
-    let filtered = category && category !== "all"
-      ? markets.filter(
-          (m) => m.category.toLowerCase() === category.toLowerCase()
-        )
-      : markets;
+    let filtered =
+      category && category !== "all"
+        ? markets.filter(
+            (m) => m.category.toLowerCase() === category.toLowerCase()
+          )
+        : markets;
 
     // Fall back to all markets if category filter matches nothing
     if (filtered.length === 0 && category && category !== "all") {
@@ -98,4 +107,4 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-}
+};
