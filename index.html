@@ -472,103 +472,206 @@
     .empty h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .empty p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
 
-    /* ====== HOT TAKE HERO ====== */
-    .hot-take {
+    /* ====== TRENDING NOW HERO ====== */
+    .trending-hero {
       position: relative; overflow: hidden;
-      border-radius: 20px; padding: 24px 20px 20px;
-      background: linear-gradient(135deg, rgba(0,227,143,0.06) 0%, rgba(0,212,255,0.04) 100%);
-      border: 1px solid rgba(0,227,143,0.12);
-      margin-bottom: 8px;
+      border-radius: 22px; margin-bottom: 8px; margin-top: 16px;
+      background: linear-gradient(160deg, #0d1a14 0%, #0b1118 50%, #130d1a 100%);
+      border: 1px solid rgba(0,227,143,0.1);
     }
-    .hot-take::before {
-      content: ''; position: absolute; top: -60px; right: -60px;
-      width: 180px; height: 180px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,227,143,0.1) 0%, transparent 70%);
-      pointer-events: none;
+    /* Animated gradient border glow */
+    .trending-hero::before {
+      content: ''; position: absolute; inset: -1px; border-radius: 23px; z-index: 0;
+      background: conic-gradient(from 0deg, var(--green), var(--cyan), transparent, var(--green));
+      opacity: 0.15; animation: borderSpin 8s linear infinite;
     }
-    .hot-take-header {
+    @keyframes borderSpin { to { --angle: 360deg; } }
+    .trending-hero::after {
+      content: ''; position: absolute; inset: 1px; border-radius: 21px; z-index: 0;
+      background: linear-gradient(160deg, #0d1a14 0%, #0b1118 50%, #130d1a 100%);
+    }
+    .trending-inner { position: relative; z-index: 1; padding: 22px 20px 18px; }
+
+    /* Floating particles */
+    .trending-particles {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+    }
+    .particle {
+      position: absolute; border-radius: 50%; opacity: 0;
+      animation: floatUp 4s ease-in infinite;
+    }
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0.5); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-120px) scale(0); }
+    }
+
+    /* Header row */
+    .trending-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px; position: relative;
+      margin-bottom: 14px;
     }
-    .hot-take-label {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 700; color: var(--green);
+    .trending-label {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .trending-fire {
+      font-size: 18px; animation: fireWobble 1.5s ease-in-out infinite;
+    }
+    @keyframes fireWobble {
+      0%,100% { transform: rotate(-5deg) scale(1); }
+      50% { transform: rotate(5deg) scale(1.15); }
+    }
+    .trending-text {
+      font-size: 13px; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .trending-live {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 999px;
+      background: rgba(0,227,143,0.1); border: 1px solid rgba(0,227,143,0.2);
+      font-size: 10px; font-weight: 800; color: var(--green);
       text-transform: uppercase; letter-spacing: 0.06em;
     }
-    .hot-take-dot {
+    .trending-live-dot {
       width: 6px; height: 6px; border-radius: 50%; background: var(--green);
-      animation: pulse 2s ease-in-out infinite;
+      animation: livePulse 2s ease-in-out infinite;
     }
-    @keyframes pulse {
-      0%,100% { opacity: 0.4; } 50% { opacity: 1; }
+    @keyframes livePulse {
+      0%,100% { opacity: 0.3; box-shadow: 0 0 0 0 rgba(0,227,143,0.4); }
+      50% { opacity: 1; box-shadow: 0 0 0 4px rgba(0,227,143,0.1); }
     }
-    .hot-take-nav {
-      display: flex; gap: 6px;
+
+    /* Counter / index */
+    .trending-counter {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
     }
-    .hot-take-nav button {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    .trending-num {
+      font-size: 11px; font-weight: 800; color: var(--dim);
+      background: rgba(255,255,255,0.06); padding: 3px 10px;
+      border-radius: 999px; letter-spacing: 0.04em;
+    }
+    .trending-nav { display: flex; gap: 4px; }
+    .trending-nav button {
+      width: 26px; height: 26px; border-radius: 8px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
       color: var(--muted); cursor: pointer; display: flex;
-      align-items: center; justify-content: center; font-size: 14px;
-      font-family: var(--font); transition: all 0.2s;
+      align-items: center; justify-content: center;
+      font-family: var(--font); font-size: 13px; font-weight: 700;
+      transition: all 0.2s;
     }
-    .hot-take-nav button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-    .hot-take-question {
-      font-size: 18px; font-weight: 800; line-height: 1.3;
-      letter-spacing: -0.02em; margin-bottom: 16px;
-      position: relative;
+    .trending-nav button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    /* Question */
+    .trending-question {
+      font-size: 19px; font-weight: 800; line-height: 1.3;
+      letter-spacing: -0.025em; margin-bottom: 18px;
+      min-height: 50px;
+      transition: opacity 0.3s;
     }
-    .hot-take-odds {
-      display: flex; gap: 10px; margin-bottom: 14px;
+
+    /* Voting buttons */
+    .trending-votes { display: flex; gap: 10px; margin-bottom: 16px; }
+    .trending-vote {
+      flex: 1; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 16px 12px 14px; border-radius: 16px; cursor: pointer;
+      transition: all 0.25s ease; text-decoration: none;
     }
-    .hot-take-odd {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 14px 12px; border-radius: 14px; cursor: pointer;
-      transition: all 0.2s; text-decoration: none;
+    .trending-vote-yes {
+      background: rgba(0,227,143,0.06); border: 2px solid rgba(0,227,143,0.15);
     }
-    .hot-take-odd-yes {
-      background: rgba(0,227,143,0.08); border: 2px solid rgba(0,227,143,0.2);
-      color: var(--text);
+    .trending-vote-yes:hover {
+      background: rgba(0,227,143,0.12); border-color: rgba(0,227,143,0.4);
+      transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,227,143,0.2);
     }
-    .hot-take-odd-yes:hover {
-      background: rgba(0,227,143,0.15); border-color: rgba(0,227,143,0.45);
-      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,227,143,0.15);
+    .trending-vote-yes:active { transform: scale(0.97); }
+    .trending-vote-no {
+      background: rgba(255,71,87,0.06); border: 2px solid rgba(255,71,87,0.15);
     }
-    .hot-take-odd-no {
-      background: rgba(255,71,87,0.08); border: 2px solid rgba(255,71,87,0.2);
-      color: var(--text);
+    .trending-vote-no:hover {
+      background: rgba(255,71,87,0.12); border-color: rgba(255,71,87,0.45);
+      transform: translateY(-3px); box-shadow: 0 8px 24px rgba(255,71,87,0.2);
     }
-    .hot-take-odd-no:hover {
-      background: rgba(255,71,87,0.15); border-color: rgba(255,71,87,0.5);
-      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,71,87,0.15);
+    .trending-vote-no:active { transform: scale(0.97); }
+    /* Inner glow */
+    .trending-vote::before {
+      content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 100px; border-radius: 50%; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none;
     }
-    .hot-take-odd-price {
-      font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+    .trending-vote-yes::before { background: radial-gradient(circle, rgba(0,227,143,0.2), transparent); }
+    .trending-vote-no::before { background: radial-gradient(circle, rgba(255,71,87,0.2), transparent); }
+    .trending-vote:hover::before { opacity: 1; }
+    .trending-vote-price {
+      font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1;
     }
-    .hot-take-odd-yes .hot-take-odd-price { color: var(--green); }
-    .hot-take-odd-no .hot-take-odd-price { color: var(--red); }
-    .hot-take-odd-label { font-size: 13px; font-weight: 700; margin-top: 2px; }
-    .hot-take-bar {
-      height: 6px; border-radius: 999px; overflow: hidden;
-      background: rgba(255,71,87,0.25); margin-bottom: 10px;
+    .trending-vote-yes .trending-vote-price { color: var(--green); }
+    .trending-vote-no .trending-vote-price { color: var(--red); }
+    .trending-vote-label {
+      font-size: 14px; font-weight: 800; margin-top: 4px;
+      text-transform: uppercase; letter-spacing: 0.06em;
     }
-    .hot-take-bar-fill {
-      height: 100%; border-radius: 999px;
+    .trending-vote-yes .trending-vote-label { color: rgba(0,227,143,0.7); }
+    .trending-vote-no .trending-vote-label { color: rgba(255,71,87,0.7); }
+    .trending-vote-tag {
+      margin-top: 6px; font-size: 10px; font-weight: 700; padding: 2px 10px;
+      border-radius: 999px; letter-spacing: 0.04em;
+    }
+    .trending-vote-yes .trending-vote-tag { background: rgba(0,227,143,0.1); color: var(--green); }
+    .trending-vote-no .trending-vote-tag { background: rgba(255,71,87,0.1); color: var(--red); }
+
+    /* Sentiment bar */
+    .trending-sentiment { margin-bottom: 12px; }
+    .trending-sent-bar {
+      height: 8px; border-radius: 999px; overflow: hidden;
+      display: flex; background: rgba(255,255,255,0.04);
+    }
+    .trending-sent-yes {
+      height: 100%; border-radius: 999px 0 0 999px;
       background: linear-gradient(90deg, var(--green), var(--green-2));
       transition: width 0.6s ease;
     }
-    .hot-take-meta {
-      display: flex; justify-content: space-between;
-      font-size: 11px; color: var(--dim); font-weight: 600;
+    .trending-sent-no {
+      height: 100%; border-radius: 0 999px 999px 0;
+      background: linear-gradient(90deg, #ff4757, #ff6b7a);
+      transition: width 0.6s ease;
     }
-    .hot-take-dots {
-      display: flex; justify-content: center; gap: 6px; margin-top: 14px;
+    .trending-sent-labels {
+      display: flex; justify-content: space-between; margin-top: 6px;
+      font-size: 11px; font-weight: 700;
     }
-    .hot-take-dot-ind {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: rgba(255,255,255,0.15); transition: background 0.3s;
+    .trending-sent-labels .yes-lbl { color: var(--green); }
+    .trending-sent-labels .no-lbl { color: var(--red); }
+
+    /* Footer meta */
+    .trending-foot {
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .hot-take-dot-ind.active { background: var(--green); }
+    .trending-meta {
+      display: flex; gap: 14px; font-size: 11px; color: var(--dim); font-weight: 600;
+    }
+    .trending-meta svg { width: 12px; height: 12px; fill: var(--dim); vertical-align: -1px; margin-right: 3px; }
+    .trending-dots {
+      display: flex; gap: 5px;
+    }
+    .trending-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); transition: all 0.3s;
+      cursor: pointer;
+    }
+    .trending-dot.active {
+      background: var(--green); width: 20px; border-radius: 999px;
+    }
+
+    /* Swipe hint */
+    .trending-swipe {
+      text-align: center; margin-top: 10px; font-size: 10px;
+      color: var(--dim); font-weight: 600; letter-spacing: 0.04em;
+      animation: fadeInOut 3s ease-in-out infinite;
+    }
+    @keyframes fadeInOut {
+      0%,100% { opacity: 0.3; } 50% { opacity: 0.7; }
+    }
 
     /* ====== RESPONSIVE ====== */
     @media (min-width: 640px) {
@@ -601,32 +704,63 @@
   <div class="screen active" id="screen-home">
     <div class="page">
 
-      <!-- Hot Take Hero -->
-      <div class="hot-take" id="hot-take" style="margin-top:16px;">
-        <div class="hot-take-header">
-          <div class="hot-take-label"><span class="hot-take-dot"></span> Hot Take</div>
-          <div class="hot-take-nav">
-            <button onclick="cycleHotTake(-1)">&lsaquo;</button>
-            <button onclick="cycleHotTake(1)">&rsaquo;</button>
+      <!-- Trending Now Hero -->
+      <div class="trending-hero">
+        <div class="trending-particles" id="ht-particles"></div>
+        <div class="trending-inner">
+          <div class="trending-header">
+            <div class="trending-label">
+              <span class="trending-fire">🔥</span>
+              <span class="trending-text">Trending Now</span>
+            </div>
+            <div class="trending-live"><span class="trending-live-dot"></span> LIVE</div>
           </div>
-        </div>
-        <div class="hot-take-question" id="ht-question">Loading...</div>
-        <div class="hot-take-odds">
-          <div class="hot-take-odd hot-take-odd-yes" id="ht-yes" onclick="htPick('yes')">
-            <div class="hot-take-odd-price" id="ht-yes-price">--</div>
-            <div class="hot-take-odd-label">Yes</div>
+
+          <div class="trending-counter">
+            <span class="trending-num" id="ht-counter">1 / 5</span>
+            <div style="flex:1;"></div>
+            <div class="trending-nav">
+              <button onclick="cycleHotTake(-1)">&#8249;</button>
+              <button onclick="cycleHotTake(1)">&#8250;</button>
+            </div>
           </div>
-          <div class="hot-take-odd hot-take-odd-no" id="ht-no" onclick="htPick('no')">
-            <div class="hot-take-odd-price" id="ht-no-price">--</div>
-            <div class="hot-take-odd-label">No</div>
+
+          <div class="trending-question" id="ht-question">Loading market...</div>
+
+          <div class="trending-votes">
+            <div class="trending-vote trending-vote-yes" onclick="htPick('yes')">
+              <div class="trending-vote-price" id="ht-yes-price">--</div>
+              <div class="trending-vote-label">Yes</div>
+              <div class="trending-vote-tag" id="ht-yes-tag">--</div>
+            </div>
+            <div class="trending-vote trending-vote-no" onclick="htPick('no')">
+              <div class="trending-vote-price" id="ht-no-price">--</div>
+              <div class="trending-vote-label">No</div>
+              <div class="trending-vote-tag" id="ht-no-tag">--</div>
+            </div>
           </div>
+
+          <div class="trending-sentiment">
+            <div class="trending-sent-bar">
+              <div class="trending-sent-yes" id="ht-bar-yes" style="width:50%;"></div>
+              <div class="trending-sent-no" id="ht-bar-no" style="width:50%;"></div>
+            </div>
+            <div class="trending-sent-labels">
+              <span class="yes-lbl" id="ht-pct-yes">50% Yes</span>
+              <span class="no-lbl" id="ht-pct-no">50% No</span>
+            </div>
+          </div>
+
+          <div class="trending-foot">
+            <div class="trending-meta">
+              <span><svg viewBox="0 0 24 24"><path d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-7 2c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7-7-3.13-7-7zm2 0c0 2.76 2.24 5 5 5s5-2.24 5-5-2.24-5-5-5-5 2.24-5 5z"/></svg><span id="ht-vol">--</span></span>
+              <span><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg><span id="ht-closes">--</span></span>
+            </div>
+            <div class="trending-dots" id="ht-dots"></div>
+          </div>
+
+          <div class="trending-swipe">SWIPE OR TAP TO PICK</div>
         </div>
-        <div class="hot-take-bar"><div class="hot-take-bar-fill" id="ht-bar" style="width:50%;"></div></div>
-        <div class="hot-take-meta">
-          <span id="ht-vol">--</span>
-          <span id="ht-closes">--</span>
-        </div>
-        <div class="hot-take-dots" id="ht-dots"></div>
       </div>
 
       <!-- Public Leagues -->
@@ -990,7 +1124,7 @@
     }
 
     // ===== HOME SCREEN =====
-    // ===== HOT TAKE =====
+    // ===== TRENDING NOW =====
     let hotTakeMarkets = [];
     let hotTakeIndex = 0;
 
@@ -998,28 +1132,57 @@
       try {
         const res = await apiFetch('/api/markets');
         if (!res.ok || !res.markets) return;
-        // Pick top markets with highest volume or most interesting odds
         hotTakeMarkets = res.markets
           .filter(m => m.yes_bid && m.no_bid && m.yes_bid > 5 && m.yes_bid < 95)
           .sort((a, b) => (b.volume || 0) - (a.volume || 0))
           .slice(0, 5);
-        if (hotTakeMarkets.length > 0) renderHotTake();
-      } catch (e) { console.error('Hot take error:', e); }
+        if (hotTakeMarkets.length > 0) {
+          renderHotTake();
+          spawnParticles();
+        }
+      } catch (e) { console.error('Trending error:', e); }
     }
 
     function renderHotTake() {
       if (hotTakeMarkets.length === 0) return;
       const m = hotTakeMarkets[hotTakeIndex];
-      document.getElementById('ht-question').textContent = m.title;
-      document.getElementById('ht-yes-price').textContent = m.yes_bid + '¢';
-      document.getElementById('ht-no-price').textContent = m.no_bid + '¢';
-      document.getElementById('ht-bar').style.width = m.yes_bid + '%';
-      document.getElementById('ht-vol').textContent = 'Vol: ' + formatVol(m.volume);
-      const closes = m.close_time ? 'Closes ' + new Date(m.close_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      const yesPct = m.yes_bid;
+      const noPct = m.no_bid;
+
+      // Fade transition
+      const q = document.getElementById('ht-question');
+      q.style.opacity = '0';
+      setTimeout(() => {
+        q.textContent = m.title;
+        q.style.opacity = '1';
+      }, 150);
+
+      document.getElementById('ht-yes-price').textContent = yesPct + '¢';
+      document.getElementById('ht-no-price').textContent = noPct + '¢';
+
+      // Contextual tags
+      document.getElementById('ht-yes-tag').textContent =
+        yesPct >= 70 ? 'LIKELY' : yesPct >= 40 ? 'TOSS-UP' : 'UNDERDOG';
+      document.getElementById('ht-no-tag').textContent =
+        noPct >= 70 ? 'LIKELY' : noPct >= 40 ? 'TOSS-UP' : 'UNDERDOG';
+
+      // Sentiment bar
+      document.getElementById('ht-bar-yes').style.width = yesPct + '%';
+      document.getElementById('ht-bar-no').style.width = noPct + '%';
+      document.getElementById('ht-pct-yes').textContent = yesPct + '% Yes';
+      document.getElementById('ht-pct-no').textContent = noPct + '% No';
+
+      // Meta
+      document.getElementById('ht-vol').textContent = formatVol(m.volume);
+      const closes = m.close_time ? new Date(m.close_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '--';
       document.getElementById('ht-closes').textContent = closes;
+
+      // Counter
+      document.getElementById('ht-counter').textContent = (hotTakeIndex + 1) + ' / ' + hotTakeMarkets.length;
+
       // Dots
       document.getElementById('ht-dots').innerHTML = hotTakeMarkets.map((_, i) =>
-        `<div class="hot-take-dot-ind${i === hotTakeIndex ? ' active' : ''}"></div>`
+        `<div class="trending-dot${i === hotTakeIndex ? ' active' : ''}" onclick="hotTakeIndex=${i};renderHotTake();"></div>`
       ).join('');
     }
 
@@ -1034,13 +1197,34 @@
       const m = hotTakeMarkets[hotTakeIndex];
       if (!currentUser) return login();
       if (!currentLeague) {
-        // Navigate to markets screen so they can pick in a league context
         navigate('markets');
         toast('Join a league first to place picks!', 'error');
         return;
       }
       openPickModal(m.ticker, m.title, m.yes_bid, m.no_bid);
       selectPickDir(dir);
+    }
+
+    // Floating particles
+    function spawnParticles() {
+      const container = document.getElementById('ht-particles');
+      if (!container) return;
+      container.innerHTML = '';
+      const colors = ['rgba(0,227,143,0.6)', 'rgba(0,212,255,0.5)', 'rgba(255,215,0,0.4)'];
+      for (let i = 0; i < 8; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 3 + Math.random() * 4;
+        p.style.cssText = `
+          width:${size}px;height:${size}px;
+          left:${10 + Math.random() * 80}%;
+          bottom:${Math.random() * 30}%;
+          background:${colors[Math.floor(Math.random() * colors.length)]};
+          animation-delay:${Math.random() * 4}s;
+          animation-duration:${3 + Math.random() * 3}s;
+        `;
+        container.appendChild(p);
+      }
     }
 
     // Auto-rotate every 6 seconds
