@@ -472,6 +472,104 @@
     .empty h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .empty p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
 
+    /* ====== HOT TAKE HERO ====== */
+    .hot-take {
+      position: relative; overflow: hidden;
+      border-radius: 20px; padding: 24px 20px 20px;
+      background: linear-gradient(135deg, rgba(0,227,143,0.06) 0%, rgba(0,212,255,0.04) 100%);
+      border: 1px solid rgba(0,227,143,0.12);
+      margin-bottom: 8px;
+    }
+    .hot-take::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,227,143,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hot-take-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; position: relative;
+    }
+    .hot-take-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; color: var(--green);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .hot-take-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 0.4; } 50% { opacity: 1; }
+    }
+    .hot-take-nav {
+      display: flex; gap: 6px;
+    }
+    .hot-take-nav button {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 14px;
+      font-family: var(--font); transition: all 0.2s;
+    }
+    .hot-take-nav button:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .hot-take-question {
+      font-size: 18px; font-weight: 800; line-height: 1.3;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+      position: relative;
+    }
+    .hot-take-odds {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .hot-take-odd {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 14px 12px; border-radius: 14px; cursor: pointer;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .hot-take-odd-yes {
+      background: rgba(0,227,143,0.08); border: 2px solid rgba(0,227,143,0.2);
+      color: var(--text);
+    }
+    .hot-take-odd-yes:hover {
+      background: rgba(0,227,143,0.15); border-color: rgba(0,227,143,0.45);
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,227,143,0.15);
+    }
+    .hot-take-odd-no {
+      background: rgba(255,71,87,0.08); border: 2px solid rgba(255,71,87,0.2);
+      color: var(--text);
+    }
+    .hot-take-odd-no:hover {
+      background: rgba(255,71,87,0.15); border-color: rgba(255,71,87,0.5);
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,71,87,0.15);
+    }
+    .hot-take-odd-price {
+      font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+    }
+    .hot-take-odd-yes .hot-take-odd-price { color: var(--green); }
+    .hot-take-odd-no .hot-take-odd-price { color: var(--red); }
+    .hot-take-odd-label { font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .hot-take-bar {
+      height: 6px; border-radius: 999px; overflow: hidden;
+      background: rgba(255,71,87,0.25); margin-bottom: 10px;
+    }
+    .hot-take-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--green), var(--green-2));
+      transition: width 0.6s ease;
+    }
+    .hot-take-meta {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--dim); font-weight: 600;
+    }
+    .hot-take-dots {
+      display: flex; justify-content: center; gap: 6px; margin-top: 14px;
+    }
+    .hot-take-dot-ind {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); transition: background 0.3s;
+    }
+    .hot-take-dot-ind.active { background: var(--green); }
+
     /* ====== RESPONSIVE ====== */
     @media (min-width: 640px) {
       .page { max-width: 480px; margin: 0 auto; }
@@ -502,6 +600,35 @@
   <!-- ====== SCREEN: HOME ====== -->
   <div class="screen active" id="screen-home">
     <div class="page">
+
+      <!-- Hot Take Hero -->
+      <div class="hot-take" id="hot-take" style="margin-top:16px;">
+        <div class="hot-take-header">
+          <div class="hot-take-label"><span class="hot-take-dot"></span> Hot Take</div>
+          <div class="hot-take-nav">
+            <button onclick="cycleHotTake(-1)">&lsaquo;</button>
+            <button onclick="cycleHotTake(1)">&rsaquo;</button>
+          </div>
+        </div>
+        <div class="hot-take-question" id="ht-question">Loading...</div>
+        <div class="hot-take-odds">
+          <div class="hot-take-odd hot-take-odd-yes" id="ht-yes" onclick="htPick('yes')">
+            <div class="hot-take-odd-price" id="ht-yes-price">--</div>
+            <div class="hot-take-odd-label">Yes</div>
+          </div>
+          <div class="hot-take-odd hot-take-odd-no" id="ht-no" onclick="htPick('no')">
+            <div class="hot-take-odd-price" id="ht-no-price">--</div>
+            <div class="hot-take-odd-label">No</div>
+          </div>
+        </div>
+        <div class="hot-take-bar"><div class="hot-take-bar-fill" id="ht-bar" style="width:50%;"></div></div>
+        <div class="hot-take-meta">
+          <span id="ht-vol">--</span>
+          <span id="ht-closes">--</span>
+        </div>
+        <div class="hot-take-dots" id="ht-dots"></div>
+      </div>
+
       <!-- Public Leagues -->
       <div class="section-row">
         <div class="section-title">Public Leagues</div>
@@ -863,7 +990,68 @@
     }
 
     // ===== HOME SCREEN =====
+    // ===== HOT TAKE =====
+    let hotTakeMarkets = [];
+    let hotTakeIndex = 0;
+
+    async function loadHotTakes() {
+      try {
+        const res = await apiFetch('/api/markets');
+        if (!res.ok || !res.markets) return;
+        // Pick top markets with highest volume or most interesting odds
+        hotTakeMarkets = res.markets
+          .filter(m => m.yes_bid && m.no_bid && m.yes_bid > 5 && m.yes_bid < 95)
+          .sort((a, b) => (b.volume || 0) - (a.volume || 0))
+          .slice(0, 5);
+        if (hotTakeMarkets.length > 0) renderHotTake();
+      } catch (e) { console.error('Hot take error:', e); }
+    }
+
+    function renderHotTake() {
+      if (hotTakeMarkets.length === 0) return;
+      const m = hotTakeMarkets[hotTakeIndex];
+      document.getElementById('ht-question').textContent = m.title;
+      document.getElementById('ht-yes-price').textContent = m.yes_bid + '¢';
+      document.getElementById('ht-no-price').textContent = m.no_bid + '¢';
+      document.getElementById('ht-bar').style.width = m.yes_bid + '%';
+      document.getElementById('ht-vol').textContent = 'Vol: ' + formatVol(m.volume);
+      const closes = m.close_time ? 'Closes ' + new Date(m.close_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      document.getElementById('ht-closes').textContent = closes;
+      // Dots
+      document.getElementById('ht-dots').innerHTML = hotTakeMarkets.map((_, i) =>
+        `<div class="hot-take-dot-ind${i === hotTakeIndex ? ' active' : ''}"></div>`
+      ).join('');
+    }
+
+    function cycleHotTake(dir) {
+      if (hotTakeMarkets.length === 0) return;
+      hotTakeIndex = (hotTakeIndex + dir + hotTakeMarkets.length) % hotTakeMarkets.length;
+      renderHotTake();
+    }
+
+    function htPick(dir) {
+      if (hotTakeMarkets.length === 0) return;
+      const m = hotTakeMarkets[hotTakeIndex];
+      if (!currentUser) return login();
+      if (!currentLeague) {
+        // Navigate to markets screen so they can pick in a league context
+        navigate('markets');
+        toast('Join a league first to place picks!', 'error');
+        return;
+      }
+      openPickModal(m.ticker, m.title, m.yes_bid, m.no_bid);
+      selectPickDir(dir);
+    }
+
+    // Auto-rotate every 6 seconds
+    setInterval(() => {
+      if (hotTakeMarkets.length > 1 && document.getElementById('screen-home').classList.contains('active')) {
+        cycleHotTake(1);
+      }
+    }, 6000);
+
     async function loadHome() {
+      loadHotTakes();
       loadPublicLeagues();
       if (currentUser) {
         document.getElementById('my-leagues-header').style.display = '';
