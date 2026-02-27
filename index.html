@@ -7,7 +7,7 @@
   <meta name="description" content="Compete with friends to predict real-world events. Pick markets, track odds, climb the leaderboard." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Exo+2:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -27,7 +27,8 @@
       --text: #eef2ef;
       --muted: #a9b5ae;
       --dim: #55625d;
-      --font: 'Space Grotesk', system-ui, sans-serif;
+      --font: 'Exo 2', system-ui, sans-serif;
+      --font-display: 'Chakra Petch', system-ui, sans-serif;
       --safe-b: env(safe-area-inset-bottom, 0px);
     }
     html { background: var(--bg); }
@@ -35,6 +36,24 @@
       font-family: var(--font); background: var(--bg); color: var(--text);
       min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased;
       padding-bottom: calc(72px + var(--safe-b));
+    }
+
+    /* Display font for headings, prices, stats */
+    .section-title, .trending-text, .trending-question,
+    .trending-vote-price, .trending-vote-label, .trending-vote-tag,
+    .trending-num, .trending-sent-labels,
+    .lg-name, .lg-stat-val, .lg-badge,
+    .ld-name, .ld-big-stat-val,
+    .stat-pill-val, .streak-num,
+    .lb-rank, .lb-name, .lb-val-main,
+    .mkt-odd-val, .mkt-cat,
+    .pick-dir, .pick-pnl,
+    .profile-name, .profile-stat-val,
+    .top-bar-brand span,
+    .chart-tab, .tab,
+    .action-btn,
+    .btn {
+      font-family: var(--font-display);
     }
 
     /* ====== BOTTOM NAV ====== */
